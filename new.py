@@ -119,18 +119,31 @@ def plot_candlestick(gr_df):
         showlegend=True,
     )
     return f_candle
+@st.cache_data
+def convert_for_download(df):
+    return df.to_csv().encode("utf-8")
+    
+csv = convert_for_download(df)
 
 col1, col2 = st.columns([.7,.3])
 
 with col1:
     st.plotly_chart(plot_candlestick(gr_df),use_container_width=True)
     with st.expander('Загрузка'):
-        st.markdown(filedownload(df), unsafe_allow_html=True)
-        st.dataframe(df)
+        #st.dataframe(df.head())
+        st.write(df.head(10))
+        st.download_button(
+       label="Download CSV",
+       data=csv,
+       file_name="data.csv",
+       mime="text/csv",
+       icon=":material/download:",
+   )
+      
         
 with col2:
-        st.metric("сред. цена", int(avg), int(avg-last_avg))
-        farea = int(gr_df['area_price'][len(gr_df)-1])
-        larea = farea - int(gr_df['area_price'][len(gr_df)-2])
-        st.metric("сред. цена за кв. м", farea, larea)
-        st.metric("Кол. квартир", count, count-last_count)
+    st.metric("сред. цена", int(avg), int(avg-last_avg))
+    farea = int(gr_df['area_price'][len(gr_df)-1])
+    larea = farea - int(gr_df['area_price'][len(gr_df)-2])
+    st.metric("сред. цена за кв. м", farea, larea)
+    st.metric("Кол. квартир", count, count-last_count)
